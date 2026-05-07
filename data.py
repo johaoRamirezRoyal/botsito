@@ -1,6 +1,8 @@
 import pandas as pd
 
-df = pd.read_csv('correos.csv')
+ARCHIVO = 'correos.csv'
+
+df = pd.read_csv(ARCHIVO)
 
 df_correos = df.rename(columns={
     'First Name [Required]': 'primer_nombre',
@@ -8,43 +10,39 @@ df_correos = df.rename(columns={
     'Email Address [Required]': 'email'
 })
 
-def devolver_correos():
-    df = df_correos.copy()
-
-    df['correo_generado'] = (
-    df['primer_nombre']
+df_correos['correo_generado'] = (
+    df_correos['primer_nombre']
     .astype(str)
     .str.strip()
     .str.lower()
-    + '.' + df['apellido'] 
+    + '.'
+    + df_correos['apellido']
     .astype(str)
     .str.strip()
     .str.lower()
-    .str.replace(' ', '')
+    .str.replace(' ', '', regex=False)
     + '@royalschool.edu.co'
-    )
+)
 
-    correos = df['correo_generado'].tolist()
-    return correos[:500]
+def devolver_correos():
+    return df_correos['correo_generado'].tolist()[:500]
+
 
 def eliminar_correos_enviados(correos_enviados):
-    df = df_correos.copy()
 
-    df['correo_generado'] = (
-    df['primer_nombre']
-    .astype(str)
-    .str.strip()
-    .str.lower()
-    + '.' + df['apellido'] 
-    .astype(str)
-    .str.strip()
-    .str.lower()
-    .str.replace(' ', '')
-    + '@royalschool.edu.co'
+    global df_correos
+
+    # Filtrar
+    df_correos = df_correos[
+        ~df_correos['correo_generado'].isin(correos_enviados)
+    ]
+
+    # Guardar CSV actualizado
+    df_correos.to_csv(
+        ARCHIVO,
+        index=False
     )
 
-    df_filtrado = df[~df['correo_generado'].isin(correos_enviados)]
+    print("✅ CSV actualizado correctamente")
 
-    correos_restantes = df_filtrado['correo_generado'].tolist()
-    
-    return correos_restantes
+    return df_correos['correo_generado'].tolist()
