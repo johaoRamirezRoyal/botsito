@@ -3,8 +3,14 @@ import time
 
 def inputFormIntersection(email):
     with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=False,
+        )
 
-        browser = p.chromium.launch(headless=False)
+        context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36")
+
         page = browser.new_page()
 
         page.goto("https://dedicatedteacher.cambridge.org/vote/")
