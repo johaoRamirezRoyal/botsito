@@ -1,64 +1,77 @@
 from playwright.sync_api import sync_playwright
-import time
 
 def inputFormIntersection(email):
+
     with sync_playwright() as p:
+
         browser = p.chromium.launch(
             headless=False,
+            args=[
+                "--disable-blink-features=AutomationControlled"
+            ]
         )
 
-        context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/124.0.0.0 Safari/537.36")
+                "Chrome/124.0.0.0 Safari/537.36"
+            )
+        )
 
-        page = browser.new_page()
+        page = context.new_page()
 
-        page.goto("https://dedicatedteacher.cambridge.org/vote/")
+        page.goto(
+            "https://dedicatedteacher.cambridge.org/vote/",
+            wait_until="networkidle"
+        )
 
-        # Aceptar cookies
-        page.wait_for_selector("#ub-gdpr-button-accept", timeout=10000)
-        page.click("#ub-gdpr-button-accept")
-        page.wait_for_selector("#ub-gdpr", state="hidden", timeout=5000)
-        print("✅ Cookies aceptadas")
+        # Cookies
+        page.locator(
+            "#ub-gdpr-button-accept"
+        ).click()
 
-        page.wait_for_selector("iframe.hs-form-iframe", timeout=10000)
+        frame = page.frame_locator(
+            "iframe.hs-form-iframe"
+        )
 
-        iframe = page.frame(name="hs-form-iframe-0")
-        frame = page.frame_locator("iframe.hs-form-iframe")
+        valor_deseado = (
+            "Corina Corpas, Colegio Real Royal School, Colombia"
+        )
 
-        valor_deseado = "Corina Corpas, Colegio Real Royal School, Colombia"
+        # Radio
+        radio = frame.locator(
+            f"input[type='radio'][value='{valor_deseado}']"
+        )
 
-        inputs = iframe.query_selector_all("input")
+        radio.check(force=True)
 
-        radio_seleccionado = False
+        print("✅ Radio seleccionado")
 
-        for inp in inputs:
-            nombre = inp.get_attribute("name")
-            tipo   = inp.get_attribute("type")
-            id     = inp.get_attribute("id")
-            value  = inp.get_attribute("value")
+        # Email
+        email_input = frame.locator(
+            "#email-c19294fc-3923-4d33-a7af-d9326459f0f6"
+        )
 
-            corina = "choose_your_global_winner_of_the_2026_cambridge_dedicated_teacher_awards2-c19294fc-3923-4d33-a7af-d9326459f0f6"
+        email_input.click()
 
-            if id and id.startswith(corina):
-                print(f"name: {nombre} | type: {tipo} | id: {id} | value: {value}")
+        email_input.press_sequentially(email)
 
-                if value == valor_deseado:
-                    frame.locator(f"input[type='radio'][value='{value}']").check()
-                    print(f"✅ Radio seleccionado: {value}")
-                    radio_seleccionado = True
-                    break
+        print("✅ Email insertado")
 
-        if radio_seleccionado:
-            # Insertar email
-            frame.locator("#email-c19294fc-3923-4d33-a7af-d9326459f0f6").fill(email)
-            print(f"✅ Email insertado: {email}")
+        page.wait_for_timeout(2000)
 
-            # Hacer submit
-            frame.locator("input[type='submit'].hs-button.primary.large").click()
-            print("✅ Formulario enviado")
-        else:
-            print("⚠️ No se encontró el radio deseado, formulario no enviado")
+        # Submit
+        submit = frame.locator(
+            "input[type='submit']"
+        )
 
-        time.sleep(6)
+        submit.wait_for(state="visible")
+
+        submit.click(force=True)
+
+        print("✅ Submit enviado")
+
+        page.wait_for_timeout(8000)
+
         browser.close()
