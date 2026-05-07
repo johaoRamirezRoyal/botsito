@@ -15,6 +15,7 @@ df_correos['correo_generado'] = (
     .astype(str)
     .str.strip()
     .str.lower()
+    .str.replace(' ', '', regex=False)
     + '.'
     + df_correos['apellido']
     .astype(str)
