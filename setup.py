@@ -60,8 +60,5 @@ def inputFormIntersection(email):
         else:
             print("⚠️ No se encontró el radio deseado, formulario no enviado")
 
-        time.sleep(15000)
+        time.sleep(6)
         browser.close()
-
-# Llamar la función
-inputFormIntersection("correo@ejemplo.com")

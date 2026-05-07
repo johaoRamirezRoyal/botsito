@@ -1,14 +1,16 @@
-import keyboard
 from setup import inputFormIntersection
+from data import devolver_correos
 
-def iniciar_bot():
-    print("Inicializando el botsito... ")
-    #Aquí debes poner la función o funciones no se
+def main():
+    numero_correos = 0
+    correos = devolver_correos()
 
-    keyboard.add_hotkey('ctrl+shift+b', inputFormIntersection("abiabuchaibe@royalschool.edu.co"))
+    for correo in correos:
+        if numero_correos >= 1:
+            print("Se han enviado 10 correos, deteniendo el bot.")
+            break
+        inputFormIntersection(correo)
+        numero_correos += 1
+        print(f"✅ Correo enviado: {correo} | Total enviados: {numero_correos}")
 
-    print("Bot listo! Presiona Ctrl+Shift+B para activar el bot.")
-
-    keyboard.wait('esc')
-
-iniciar_bot()
+main()
