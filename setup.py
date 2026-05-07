@@ -20,10 +20,11 @@ def inputFormIntersection(email):
         iframe = page.frame(name="hs-form-iframe-0")
         frame = page.frame_locator("iframe.hs-form-iframe")
 
-        # El valor que quieres seleccionar
-        valor_deseado = "Corina Corpas, Colegio Real Royal School, Colombia"  # ← cambia esto por el value del radio que quieres
+        valor_deseado = "Corina Corpas, Colegio Real Royal School, Colombia"
 
         inputs = iframe.query_selector_all("input")
+
+        radio_seleccionado = False
 
         for inp in inputs:
             nombre = inp.get_attribute("name")
@@ -33,17 +34,28 @@ def inputFormIntersection(email):
 
             corina = "choose_your_global_winner_of_the_2026_cambridge_dedicated_teacher_awards2-c19294fc-3923-4d33-a7af-d9326459f0f6"
 
-            # Opción 1: el id empieza con el prefijo que buscas
             if id and id.startswith(corina):
                 print(f"name: {nombre} | type: {tipo} | id: {id} | value: {value}")
 
-                # Seleccionar el radio que tenga el value deseado
                 if value == valor_deseado:
                     frame.locator(f"input[type='radio'][value='{value}']").check()
                     print(f"✅ Radio seleccionado: {value}")
-                    frame.locator("#email-c19294fc-3923-4d33-a7af-d9326459f0f6").fill(email)
-                    print("✅ Email insertado")
+                    radio_seleccionado = True
                     break
 
-        time.sleep(3)
+        if radio_seleccionado:
+            # Insertar email
+            frame.locator("#email-c19294fc-3923-4d33-a7af-d9326459f0f6").fill(email)
+            print(f"✅ Email insertado: {email}")
+
+            # Hacer submit
+            frame.locator("input[type='submit'].hs-button.primary.large").click()
+            print("✅ Formulario enviado")
+        else:
+            print("⚠️ No se encontró el radio deseado, formulario no enviado")
+
+        time.sleep(15000)
         browser.close()
+
+# Llamar la función
+inputFormIntersection("correo@ejemplo.com")
