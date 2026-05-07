@@ -8,8 +8,8 @@ df_correos = df.rename(columns={
     'Email Address [Required]': 'email'
 })
 
-def devolver_correos(df):
-    df = df.copy()
+def devolver_correos():
+    df = df_correos.copy()
 
     df['correo_generado'] = (
     df['primer_nombre']
